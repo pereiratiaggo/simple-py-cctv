@@ -222,3 +222,104 @@ Deve retornar:
 * modo appliance (igual NVR comercial)
 
 ---
+
+# README — Fazer o startx iniciar automaticamente após autologin
+
+## Situação atual
+
+* Servidor liga ✔
+* Login automático funciona ✔
+* Cai no bash ❌
+* Ambiente gráfico não inicia ❌
+
+---
+
+## ✅ 1. Criar/editar o `.profile`
+
+Abra:
+
+```bash
+nano ~/.profile
+```
+
+---
+
+## ✅ 2. Adicione NO FINAL do arquivo
+
+```bash
+# iniciar ambiente gráfico automaticamente
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    startx
+fi
+```
+
+Salvar:
+
+```
+CTRL + O
+ENTER
+CTRL + X
+```
+
+---
+
+## ✅ 3. Garantir permissões corretas
+
+```bash
+chmod +x ~/.profile
+```
+
+---
+
+## ✅ 4. Testar sem reiniciar
+
+Saia do usuário:
+
+```bash
+exit
+```
+
+ou:
+
+```bash
+logout
+```
+
+Se tudo estiver certo:
+
+👉 o sistema fará login automático novamente
+👉 o `startx` abrirá sozinho
+
+---
+
+## ✅ 5. Teste final
+
+Reinicie:
+
+```bash
+sudo reboot
+```
+
+---
+
+## ✔ Resultado esperado
+
+Boot → Autologin → startx inicia → ambiente gráfico aparece no monitor.
+
+---
+
+## 🔥 Se ainda não abrir
+
+Teste manualmente:
+
+```bash
+tty
+```
+
+Precisa retornar:
+
+```
+/dev/tty1
+```
+
+Se retornar outro tty, o startx não será executado.
