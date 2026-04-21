@@ -5,20 +5,17 @@ import os
 import sys
 import math
 import threading
-import tkinter as tk
 from dotenv import load_dotenv
 
 # ==============================
-# DETECTAR MONITOR
+# RESOLUÇÃO (SEM TKINTER)
 # ==============================
 
 def get_screen_resolution():
-    root = tk.Tk()
-    root.withdraw()
-    w = root.winfo_screenwidth()
-    h = root.winfo_screenheight()
-    root.destroy()
-    return w, h
+    width = int(os.getenv("SCREEN_WIDTH", 1920))
+    height = int(os.getenv("SCREEN_HEIGHT", 1080))
+    return width, height
+
 
 SCREEN_WIDTH, SCREEN_HEIGHT = get_screen_resolution()
 
@@ -50,6 +47,7 @@ def calculate_grid(n):
     cols = math.ceil(math.sqrt(n))
     rows = math.ceil(n / cols)
     return rows, cols
+
 
 GRID_ROWS, GRID_COLS = calculate_grid(CAM_COUNT)
 
@@ -132,7 +130,6 @@ def mouse_callback(event, x, y, flags, param):
 
         now = time.time()
 
-        # duplo clique
         if now - last_click_time < 0.3:
             fullscreen_cam = None
             last_click_time = 0
@@ -187,16 +184,14 @@ def main():
 
     while True:
 
-        # ======================
-        # MODO FULLSCREEN CAMERA
-        # ======================
-
         if fullscreen_cam is not None:
+
             frame = streams[fullscreen_cam].read()
             frame = cv2.resize(frame, (SCREEN_WIDTH, SCREEN_HEIGHT))
             cv2.imshow(WINDOW_NAME, frame)
 
         else:
+
             frames = [s.read() for s in streams]
 
             total_cells = GRID_ROWS * GRID_COLS

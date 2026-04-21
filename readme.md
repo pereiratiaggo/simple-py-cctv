@@ -213,13 +213,134 @@ Deve retornar:
 
 ---
 
-## 🚀 Próximos Melhoramentos (Opcional)
+# README — Iniciar Ambiente Gráfico Automaticamente no Ubuntu Server
 
-* esconder cursor do mouse
-* auto recovery se câmera travar
-* watchdog de processo
-* boot splash personalizado
-* modo appliance (igual NVR comercial)
+## Problema
+
+O ambiente gráfico funciona com `startx`, mas **não inicia automaticamente após reiniciar o servidor**.
+
+Na maioria dos casos, isso acontece porque o **login automático no TTY1 não está habilitado**.
+
+---
+
+## ✅ Objetivo
+
+Fazer o Ubuntu Server:
+
+* ligar
+* realizar login automático
+* iniciar o ambiente gráfico no monitor conectado
+
+---
+
+## 1. Criar pasta de configuração do getty
+
+```bash
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+```
+
+---
+
+## 2. Criar arquivo override
+
+Abra o arquivo:
+
+```bash
+sudo nano /etc/systemd/system/getty@tty1.service.d/override.conf
+```
+
+---
+
+## 3. Inserir o conteúdo abaixo
+
+(Substitua **tiago** pelo seu usuário se for diferente)
+
+```ini
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin tiago --noclear %I $TERM
+```
+
+Salvar:
+
+```
+CTRL + O
+ENTER
+CTRL + X
+```
+
+---
+
+## 4. Recarregar o systemd
+
+```bash
+sudo systemctl daemon-reexec
+```
+
+---
+
+## 5. Reiniciar o servidor
+
+```bash
+sudo reboot
+```
+
+---
+
+## ✅ Resultado esperado
+
+Após reiniciar:
+
+1. O sistema faz login automaticamente no usuário
+2. O `.bash_profile` é executado
+3. O `startx` inicia sozinho
+4. O ambiente gráfico aparece direto no monitor do servidor
+
+---
+
+## 🔎 Teste rápido
+
+Depois do boot você **não deve ver tela de login**.
+
+Se aparecer:
+
+```
+Ubuntu Server login:
+```
+
+o autologin não foi aplicado corretamente.
+
+---
+
+## 🧠 Dica importante
+
+Confirme que existe no usuário:
+
+```bash
+~/.bash_profile
+```
+
+com:
+
+```bash
+if [[ -z $DISPLAY ]] && [[ $(tty) == /dev/tty1 ]]; then
+    startx
+fi
+```
+
+Sem isso, o ambiente gráfico não inicia automaticamente.
+
+---
+
+## ✔️ Ambiente final
+
+Servidor Ubuntu funcionando como:
+
+* servidor headless
+* **com saída gráfica direta no monitor**
+* sem desktop pesado
+* sem tela de login
+* boot direto na aplicação gráfica
 
 ---
 
